@@ -7,5 +7,6 @@ path
 
     cd /opt/MVS/Samples/65/Python/GrabImage/
 
-run 
+run
+    
     python3.8 Garbimage_imshow
