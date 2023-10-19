@@ -9,4 +9,4 @@ path
 
 run
     
-    python3.8 Garbimage_imshow
+    python3.8 GarbImage_imshow.py
