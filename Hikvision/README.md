@@ -5,7 +5,7 @@ run the python file from GrabImage directory
 
 path
 
-    cd /opt/MVS/Samples/65/Python/GrabImage/
+    cd /opt/MVS/Samples/64/Python/GrabImage/
 
 run
     
