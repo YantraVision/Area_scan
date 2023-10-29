@@ -1,6 +1,8 @@
 
 unzip the above Hikvision.zip file in your root/opt/ directory 
 
+    unzip /opt/Hikvision.zip
+
 run the python file from GrabImage directory
 
 path
