@@ -14,7 +14,16 @@ go to build and appropriate example directory to get complie the code you genera
         
     cd /home/rpf/pico-setup/pico/pico-examples/build/blink
 
+run 
+
     make -j4
+
+check dmesg, find which port pico is connected
+
+    sudo /dev/sdb1 /mnt/pico
+
+    sudo cp blink.uf2 /mnt/pico
+
 
 
 
