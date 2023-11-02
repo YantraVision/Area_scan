@@ -22,6 +22,8 @@ check dmesg, find which port pico is connected
 
     sudo /dev/sdb1 /mnt/pico
 
+load the complied file 
+
     sudo cp blink.uf2 /mnt/pico
 
 
