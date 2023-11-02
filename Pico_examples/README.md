@@ -7,6 +7,15 @@ go to pico-examples and choose appropriate example directory you need to work
 
     cd /home/rpf/pico-setup/pico/pico-examples/
 
+    eg: vim /pico/pico-examples/blink/blink.c
+
+once your code is completed
+go to build and appropriate example directory to get complie the code you generated, 
+        
+    cd /home/rpf/pico-setup/pico/pico-examples/build/blink
+
+    make -j4
+
 
 
 
