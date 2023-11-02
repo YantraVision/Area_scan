@@ -17,11 +17,14 @@ go to build and appropriate example directory to get complie the code you genera
 run 
 
     make -j4
+Now, connect the PICO module to pc
+,**hold BOOTSEL button while getting power it up**
 
-when connecting pico to pc, hold BOOTSEL button while getting power it up.
-it will act as storage module
+now it will act as storage module
 
 check dmesg, find which port pico is connected
+
+eg:/dev/sdb1
 
     sudo /dev/sdb1 /mnt/pico
 
