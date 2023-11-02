@@ -5,9 +5,9 @@
 
 go to pico-examples and choose appropriate example directory you need to work 
 
-    cd /home/rpf/pico-setup/pico/pico-examples/blink
+    cd /home/rpf/pico-setup/pico/pico-examples/
 
-    eg: vim /pico/pico-examples/blink/blink.c
+    eg: vim /home/rpf/pico-setup/pico/pico-examples/blink/blink.c
 
 once your code is completed
 go to build and appropriate example directory to get complie the code you generated, 
