@@ -18,6 +18,9 @@ run
 
     make -j4
 
+when connecting pico to pc, hold BOOTSEL button while getting power it up.
+it will act as storage module
+
 check dmesg, find which port pico is connected
 
     sudo /dev/sdb1 /mnt/pico
@@ -25,6 +28,8 @@ check dmesg, find which port pico is connected
 load the complied file 
 
     sudo cp blink.uf2 /mnt/pico
+
+once you pushed code into pico, it automatically umounts and starts running the uploded code
 
 
 
