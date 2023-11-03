@@ -26,7 +26,7 @@ check dmesg, find which port pico is connected
 
 eg:/dev/sdb1
 
-    sudo /dev/sdb1 /mnt/pico
+    sudo mount /dev/sdb1 /mnt/pico
 
 load the complied file 
 
