@@ -1,5 +1,5 @@
 # Multicore Examples with FIFO Blocking API
-This Directory contains four examples which demonstrates the usage of 2 cores with push and pop FIFO buffers which holds upcoming process	\
+This Directory contains four examples which demonstrates the usage of 2 cores with push and pop FIFO buffers which holds upcoming process	
 ```
 	**simple_testcase** - performs simple comparsion of data feed in both cores.
 	**passing_functionPointer** - Data read/write and processing happens in 2 different cores and the function pointer was pushed as a parameter.	\
