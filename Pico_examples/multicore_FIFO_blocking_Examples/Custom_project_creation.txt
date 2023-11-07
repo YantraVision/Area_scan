@@ -1,0 +1,12 @@
+Steps to Create Custom Project
+	1- cd /home/rpf/pico-setup/pico/pico-examples/
+	2- mkdir <prj_name>
+	3- Create <prj_name>.c and CMakeLists.txt
+	4- Add 'add_subdirectory(<prj_name>)' in /home/rpf/pico-setup/pico/pico-examples/CMakeLists.txt
+	5- cd /home/rpf/pico-setup/pico/pico-examples/build
+	6- cmake ..	#configure SDK and generate Makefile and CMakeLists.txt for all sub-directories
+	7- make <prj_name>	#generate .uf2, .bin and .hex files required for flashing
+	8- cd <prj_name>/
+	9- make -j4	#command to build the design
+	
+
