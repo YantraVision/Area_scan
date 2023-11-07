@@ -1,0 +1,2 @@
+/home/rpf/Area_scan/Pico_examples/Non-blocking_FIFO_examples/build/CMakeFiles/rebuild_cache.dir
+/home/rpf/Area_scan/Pico_examples/Non-blocking_FIFO_examples/build/CMakeFiles/edit_cache.dir
