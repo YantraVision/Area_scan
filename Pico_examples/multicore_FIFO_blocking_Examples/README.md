@@ -1,11 +1,11 @@
 # Multicore Examples with FIFO Blocking API
 This Directory contains four examples which demonstrates the usage of 2 cores with push and pop FIFO buffers which holds upcoming process	
 ```
-	**simple_testcase** - performs simple comparsion of data feed in both cores.
-	**passing_functionPointer** - Data read/write and processing happens in 2 different cores and the function pointer was pushed as a parameter.	\
-	**non-blocking_FIFO_example** -  monitors the data entry and perform push/pop operation.	\
-	**FIFO_interrupts** - Sets Interrupt handler , monitors the data entry and perform push/pop operation.	\
-	**queue_handle** - Used queues to handle Data parsing.
+	simple_testcase - performs simple comparsion of data feed in both cores.
+	passing_functionPointer - Data read/write and processing happens in 2 different cores and the function pointer was pushed as a parameter.	
+	non-blocking_FIFO_example -  monitors the data entry and perform push/pop operation.	
+	FIFO_interrupts - Sets Interrupt handler , monitors the data entry and perform push/pop operation.	
+	queue_handle - Used queues to handle Data parsing.
 ```
 
 ## APIs Used
@@ -21,6 +21,6 @@ This Directory contains four examples which demonstrates the usage of 2 cores wi
 	-  Check the write FIFO to see if it has space for more data	
 
 # Reference	
-[multicore_docs](https://www.raspberrypi.com/documentation//pico-sdk/multicore_8h.html)
-[Custom_project_creation](https://github.com/raspberrypi/pico-sdk#quick-start-your-own-project)
+[multicore_docs](https://www.raspberrypi.com/documentation//pico-sdk/multicore_8h.html) \
+[Custom_project_creation](https://github.com/raspberrypi/pico-sdk#quick-start-your-own-project) \
 [Steps_to_create_custom_project](Custom_project_creation.txt)
