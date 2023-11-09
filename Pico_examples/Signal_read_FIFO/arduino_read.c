@@ -37,7 +37,7 @@ void set_up() {
 void core1_entry() {
 	//core 1
 	uint32_t g=0;
-	uint8_t array_a[5] = {0};
+	uint8_t array_a[8] = {0};
     	uint8_t currStateOfPin = 0;
 	uint8_t nextStateOfPin = 0;
 	uint8_t curVal=0;
@@ -48,40 +48,51 @@ void core1_entry() {
 			gpio_put(FIFO_READ_PIN,g);
 			//printf("Value at Encoder pin - %d\n",g);
 		}
-	//printf("%d",array_a[0]);
+	
+	//printf("value at pin 5 %d\n",array_a[4]);
         array_a[0] = array_a[1];
         array_a[1] = array_a[2];
         array_a[2] = array_a[3];
         array_a[3] = array_a[4];
-        array_a[4] = g;
+	array_a[4] = array_a[5];
+        array_a[5] = array_a[6];
+        array_a[6] = array_a[7];
+        array_a[7] = g;
 	
 	//rising edge
         if (currStateOfPin == 0) {
-            nextStateOfPin = array_a[4] & array_a[3] & array_a[2] & array_a[1] & array_a[0];
+            nextStateOfPin =  array_a[7] & array_a[6] & array_a[5] & array_a[4] & array_a[3] & array_a[2] & array_a[1] & array_a[0];
             //printf("rised \n");
         }
+	//debounce
         if (currStateOfPin == 1) {
-            nextStateOfPin = array_a[4] | array_a[3] | array_a[2] | array_a[1] | array_a[0];
+            nextStateOfPin =  array_a[7] | array_a[6] | array_a[5] | array_a[4] | array_a[3] | array_a[2] | array_a[1] | array_a[0];
         }
         
 	if (currStateOfPin == 0 && nextStateOfPin == 1) {
             //printf("entered \n");
-            encoder_count = encoder_count + 1;
+            
+	    encoder_count = encoder_count + 1;
+	    
 
-            if (encoder_count >= 15 && encoder_count < 20) {
+            if (encoder_count >= 250 && encoder_count < 251) {
                 gpio_put(TRIGGER_ENABLE_PIN, 1); // Enable trigger
 		//printf("entered \n");
             } 
 	    else {
                 gpio_put(TRIGGER_ENABLE_PIN, 0); // Disable trigger
             }
-        }
+	    
+        } 
         currStateOfPin = nextStateOfPin;
-        if (encoder_count == 50) {
+	
+        if (encoder_count == 500) { //reset  
             encoder_count = 0;
-            //gpio_put(TRIGGER_ENABLE_PIN, 0); // Disable trigger
+	    //gpio_put(TRIGGER_ENABLE_PIN, 1);
+             // Disable trigger
             //printf("reseted \n");
         }
+	//else { gpio_put(TRIGGER_ENABLE_PIN, 0); }
 	}
 }
 
