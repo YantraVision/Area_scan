@@ -16,12 +16,17 @@ void core1_entry() {
 	multicore_fifo_push_blocking(FLA_VALUE);
 
     	uint32_t g = multicore_fifo_pop_blocking();
+	uint32_t status = multicore_fifo_get_status();
+	printf("FIFO POP status on core 1! %d\n",status);
 
     	if (g != FLAG_VALUE)
         	printf("Hmm, that's not right on core 1!\n");
     	else {
         	printf("Its all gone well on core 1! %d\n",g);
 		multicore_fifo_push_blocking(FLA_VALUE);
+		uint32_t status = multicore_fifo_get_status();
+		printf("FIFO PUSH status on core 1! %d\n",status);
+
 	}
       }
    	while (1)
@@ -41,12 +46,16 @@ int main() {
     // Wait for it to start up
     while(1) {
 	uint32_t g = multicore_fifo_pop_blocking();
+	uint32_t status = multicore_fifo_get_status();
+	printf("FIFO POP status on core 0! %d\n",status);
 
     	if (g != FLA_VALUE)
     		printf("Hmm, that's not right on core 0!\n");
     	else {
     		printf("It's all gone well on core 0! %d\n",g);
     		multicore_fifo_push_blocking(FLAG_VALUE);
+		uint32_t status = multicore_fifo_get_status();
+		printf("FIFO PUSH status on core 0! %d\n",status);
     	}
     /// \end::setup_multicore[]
     }
