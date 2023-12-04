@@ -69,7 +69,7 @@ void encoder_st() {
             }
         }
         currStateOfPin = nextStateOfPin;
-        if (encoder_count == 1024) {
+        if (encoder_count == 500) {
             encoder_count = 0;
             gpio_put(TRIGGER_ENABLE_PIN, 0); // Disable trigger
             //printf("reseted \n");
