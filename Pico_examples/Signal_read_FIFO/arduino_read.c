@@ -120,6 +120,7 @@ void core1_entry() {
 	    
         } 
         currStateOfPin = nextStateOfPin;
+        proxy_currState = proxy_nextState;
 	
         if ( (rise ==1 && fall ==1 ) || encoder_count == RunLength) { //reset  
             gpio_put(PROXY_WRITE_PIN,1);
