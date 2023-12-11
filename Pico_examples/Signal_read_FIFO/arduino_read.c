@@ -3,7 +3,7 @@
 #include "pico/multicore.h"
 #include <time.h>
 
-#define ENCODER_PIN 18
+#define ENCODER_PIN 26
 #define TRIGGER_ENABLE_PIN 19 
 #define PROXY_READ_PIN 21
 #define PROXY_WRITE_PIN 22
@@ -52,13 +52,13 @@ void core1_entry() {
 	while(1) {
 	g = gpio_get(ENCODER_PIN);
 	p = gpio_get(PROXY_READ_PIN);
-	//printf("value at p %d\n",p);
+//	printf("value at p %d\n",p);
+	//printf("value at g%d\n",g);
        for(int i=1; i<Sample_count; i++) {
 	      array_a[Sample_count-i] = array_a[Sample_count-(i+1)];
 	      //array_p[Sample_count-i] = array_p[Sample_count-(i+1)];
        }
       array_a[0] = g;
-      //array_p[0] = p;
       
       for(int k=0;k<proxy_samples;k++){
 	      array_p[proxy_samples-k] = array_p[proxy_samples-(k+1)];
@@ -78,24 +78,26 @@ void core1_entry() {
 	
 	/*if(g == 1) { pos_edges++;}
 	else { neg_edges++; }*/
-	//rising edge
-        if (currStateOfPin == 0) {
-            nextStateOfPin = detect_and;
-            //printf("rised \n");
-        }
-	if (proxy_currState ==0) {
+	
+      //rising edge
+      if (currStateOfPin == 0 || currStateOfPin == 1) {
+           nextStateOfPin = detect_and;
+          // printf("rised \n");
+      }
+
+	if (proxy_currState ==0 || proxy_currState ==1) {
 		proxy_nextState = proxy_detect;
 		//printf("P curr state 0 next : %d %d\n",proxy_currState,proxy_nextState);
 	}
-	if(proxy_currState ==1) {
+	/*if(proxy_currState ==1) {
 		proxy_nextState = proxy_detect;
-		//printf("P curr state 1 next : %d %d\n",proxy_currState,proxy_nextState);
+		printf("P curr state 1 next : %d %d\n",proxy_currState,proxy_nextState);
 	}
 	//debounce
         if (currStateOfPin == 1) {
             nextStateOfPin =  detect_and;
        }
-       
+       */
        if(proxy_currState == 0 && proxy_nextState ==1) {
           rise =1;//printf("rise\n");
        }//else {rise =0;}	  
@@ -108,21 +110,22 @@ void core1_entry() {
        }//else {rise =0;}	  
        if(proxy_currState ==0 && proxy_nextState ==0) {
           low =1;//printf("low state\n");
-       }	
+       }
+       
 	if (currStateOfPin == 0 && nextStateOfPin == 1) {
-            printf("entered \n");
+            //printf("entered \n");
             
 	    encoder_count = encoder_count + 1;
-            printf("value with rise and fall count %d, %d %d\n", rise,fall, encoder_count);
-	    /*if (multicore_fifo_wready()){
-	    	multicore_fifo_push_blocking(rise);
-	    	multicore_fifo_push_blocking(fall);
+            //printf("value with rise and fall count %d, %d %d\n", rise,fall, encoder_count);
+	    if (multicore_fifo_wready()){
+	    	//multicore_fifo_push_blocking(rise);
+	    	//multicore_fifo_push_blocking(fall);
 	    	multicore_fifo_push_blocking(encoder_count);
-	    }*/
+	    }
 	    //pos_edges=0;neg_edges=0;
             if (encoder_count >= (StartPos+ Slip) && encoder_count < (StartPos+ Slip+ PulseWidth)) {
                 gpio_put(TRIGGER_ENABLE_PIN, 1); // Enable trigger
-		printf("*********** triggered *************\n");
+		//printf("*********** triggered *************\n");
             } 
 	    else {
                 gpio_put(TRIGGER_ENABLE_PIN, 0); // Disable trigger
@@ -133,9 +136,10 @@ void core1_entry() {
         proxy_currState = proxy_nextState;
 	
         if ( (rise ==1 && fall ==1 && high==1 && low==0 ) || encoder_count == RunLength) { //reset  
-            printf("reseted with rise and fall count %d, %d %d\n", rise,fall, encoder_count);
+        //if ( encoder_count == RunLength) { //reset  
+           // printf("reseted with rise and fall count %d, %d %d\n", rise,fall, encoder_count);
             gpio_put(PROXY_WRITE_PIN,1);
-	    encoder_count = 0 ; rise =0; fall=0;
+	    encoder_count = 0 ; rise =0; fall=0; high=0; low=0;
 	    gpio_put(PROXY_WRITE_PIN,0) ;
 	    //pos_edges=0;neg_edges=0;
 	    //gpio_put(TRIGGER_ENABLE_PIN, 1);
@@ -158,12 +162,12 @@ int main(){
 	//uint8_t curVal =0;//int count=0;
 	while(1) {
 	//	reads pos and neg edge count
-	/*	if (multicore_fifo_rvalid()){
-			int p = multicore_fifo_pop_blocking();
-			int n = multicore_fifo_pop_blocking();
+		if (multicore_fifo_rvalid()){
+			//int p = multicore_fifo_pop_blocking();
+			//int n = multicore_fifo_pop_blocking();
 			int c = multicore_fifo_pop_blocking();
-			printf("Value at rise , fall,encoder count - %d %d %d\n",p,n,c);
-		}*/	
+			printf("Value at encoder count - %d\n",c);
+		}	
 		
 	} 
 }

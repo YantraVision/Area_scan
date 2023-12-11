@@ -7,8 +7,8 @@ set(CMAKE_CXX_STANDARD 17)
 pico_sdk_init()
 if (TARGET tinyusb_device)
 	add_executable(Signal_read_FIFO
-	arduino_read.c
-	)
+		arduino_read.c
+		)
 	#add_executable(Signal_read_FIFO
 	#	pin_check.c
 	#	)
