@@ -60,7 +60,7 @@ void encoder_st() {
             //printf("entered \n");
             encoder_count = encoder_count + 1;
 
-            if (encoder_count >= 510 && encoder_count < 520) {
+            if (encoder_count >= 250 && encoder_count < 260) {
                 gpio_put(TRIGGER_ENABLE_PIN, 1); // Enable trigger
             } 
 	    else {
