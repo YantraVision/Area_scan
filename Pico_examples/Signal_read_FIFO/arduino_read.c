@@ -1,12 +1,16 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
+#include "pico/time.h"
 #include "pico/multicore.h"
+#include "hardware/timer.h"
 #include <time.h>
 
-#define ENCODER_PIN 26
-#define TRIGGER_ENABLE_PIN 19 
-#define PROXY_READ_PIN 21
-#define PROXY_WRITE_PIN 22
+#define ENCODER_PIN 21
+#define TRIGGER_ENABLE_PIN 19
+#define PROXY_READ_PIN 26
+#define OUT_2 22
+#define OUT_3 27
+
 
 int Sample_count=20;
 int proxy_samples = 5;
@@ -27,26 +31,31 @@ void set_up() {
 	gpio_put(TRIGGER_ENABLE_PIN, 0); // Set trigger enable pin low initially
 
 	gpio_init(PROXY_READ_PIN);
-	gpio_init(PROXY_WRITE_PIN);
+	gpio_init(OUT_2);
+	gpio_init(OUT_3);
 	gpio_set_dir(PROXY_READ_PIN, GPIO_IN);
-	gpio_set_dir(PROXY_WRITE_PIN, GPIO_OUT);
+	gpio_set_dir(OUT_2, GPIO_OUT);
+	gpio_set_dir(OUT_3, GPIO_OUT);
 	gpio_put(PROXY_READ_PIN, 0);
-	gpio_put(PROXY_WRITE_PIN, 0);
-
+	gpio_put(OUT_2, 0);
+	gpio_put(OUT_3, 0);
+	
     	sleep_ms(30000); //0.5 min delay for putty
 	printf("Hello, multicore!\n");
 }
 
 void core1_entry() {
 	//core 1
-	uint32_t g=0, p=0;
-	int array_a[Sample_count], array_p[proxy_samples];
+	uint32_t g=0,count=0,p=0;
+	int array_a[Sample_count],array_p[proxy_samples];
     	uint8_t currStateOfPin = 0;
-    	uint8_t proxy_currState = 0;
 	uint8_t nextStateOfPin = 0;
+	uint8_t proxy_currState = 0;
 	uint8_t proxy_nextState = 0;
-	bool rise =0, fall=0,high=0, low=0;
+	bool E_rise =0, E_fall=0,E_high=0, E_low=0,rise =0, fall=0,high=0, low=0;
 	uint8_t curVal=0;
+	uint64_t start_time,end_time, start_array[5],end_array[5];
+	int64_t process_time;
 	//uint32_t pos_edges =0, neg_edges =0;
 
 	while(1) {
@@ -54,20 +63,22 @@ void core1_entry() {
 	p = gpio_get(PROXY_READ_PIN);
 //	printf("value at p %d\n",p);
 	//printf("value at g%d\n",g);
-       for(int i=1; i<Sample_count; i++) {
+	//
+	for(int k=0;k<proxy_samples;k++){
+	      array_p[proxy_samples-k] = array_p[proxy_samples-(k+1)];
+       }
+        array_p[0] = p;
+        bool proxy_detect = 1;
+        for(int i=0; i<proxy_samples; i++) {
+ 	      proxy_detect &= array_p[i];
+        }
+	proxy_nextState = proxy_detect;
+       
+	for(int i=1; i<Sample_count; i++) {
 	      array_a[Sample_count-i] = array_a[Sample_count-(i+1)];
 	      //array_p[Sample_count-i] = array_p[Sample_count-(i+1)];
        }
       array_a[0] = g;
-      
-      for(int k=0;k<proxy_samples;k++){
-	      array_p[proxy_samples-k] = array_p[proxy_samples-(k+1)];
-      }
-      array_p[0] = p;
-      bool proxy_detect = 1;
-      for(int i=0; i<proxy_samples; i++) {
-	      proxy_detect &= array_p[i];
-      }
       
       bool detect_and = 1, detect_or = 1;
       for(int j=0; j<Sample_count; j++) {
@@ -75,80 +86,99 @@ void core1_entry() {
 	      //proxy_detect &= array_p[i];
 	      //detect_or |= array_a[j];
       }
+      nextStateOfPin = detect_and;
+      //printf("%d %d\n",currStateOfPin,nextStateOfPin);
 	
-	/*if(g == 1) { pos_edges++;}
-	else { neg_edges++; }*/
+	if(count!=0) { 
+		 
+		end_time = get_absolute_time();
+		start_array[count] = start_time;
+		end_array[count] = end_time;
+		//multicore_fifo_push_blocking(start_array[count]);
+		//multicore_fifo_push_blocking(end_array[count]);
+		count = 0;
+	}
+	start_time = get_absolute_time();
+	count+=1;
 	
+	int choice = (	proxy_currState << 1) | proxy_nextState ;
+//multicore_fifo_push_blocking(choice);
+	switch (choice) {
+		case 0:
+			low = 1; break;
+		case 1:
+			rise = 1; break;
+		case 2:
+			fall = 1 ;break;
+		case 3:
+			high = 1; break;
+	}
       //rising edge
-      if (currStateOfPin == 0 || currStateOfPin == 1) {
-           nextStateOfPin = detect_and;
-          // printf("rised \n");
-      }
-
-	if (proxy_currState ==0 || proxy_currState ==1) {
-		proxy_nextState = proxy_detect;
-		//printf("P curr state 0 next : %d %d\n",proxy_currState,proxy_nextState);
+ 	
+       int E_choice = (	currStateOfPin << 1) | nextStateOfPin ;
+       //printf("%d %d %d\n",currStateOfPin,nextStateOfPin,E_choice);
+//multicore_fifo_push_blocking(E_choice);
+	switch (E_choice) {
+		case 0:
+			E_low = 1; break;
+		case 1:
+			E_rise = 1; break;
+		case 2:
+			E_fall = 1 ;break;
+		case 3:
+			E_high = 1; break;
 	}
-	/*if(proxy_currState ==1) {
-		proxy_nextState = proxy_detect;
-		printf("P curr state 1 next : %d %d\n",proxy_currState,proxy_nextState);
-	}
-	//debounce
-        if (currStateOfPin == 1) {
-            nextStateOfPin =  detect_and;
-       }
-       */
-       if(proxy_currState == 0 && proxy_nextState ==1) {
-          rise =1;//printf("rise\n");
-       }//else {rise =0;}	  
-       if(proxy_currState ==1 && proxy_nextState ==0) {
-          fall =1;//printf("fall\n");
-       } //else {fall =0; }
-
-       if(proxy_currState == 1 && proxy_nextState ==1) {
-          high =1;//printf("high state\n");
-       }//else {rise =0;}	  
-       if(proxy_currState ==0 && proxy_nextState ==0) {
-          low =1;//printf("low state\n");
-       }
-       
-	if (currStateOfPin == 0 && nextStateOfPin == 1) {
-            //printf("entered \n");
-            
+	
+	//if (currStateOfPin == 0 && nextStateOfPin == 1) {
+	if (E_rise==1 ){ //&& E_fall ==1 && E_high==1 && E_low ==0) {
+			
+            E_rise =0; E_fall=0; E_high=0; E_low=0;
 	    encoder_count = encoder_count + 1;
+            //printf("entered %d\n", encoder_count);
             //printf("value with rise and fall count %d, %d %d\n", rise,fall, encoder_count);
-	    if (multicore_fifo_wready()){
+	    //if (multicore_fifo_wready()){
 	    	//multicore_fifo_push_blocking(rise);
-	    	//multicore_fifo_push_blocking(fall);
-	    	multicore_fifo_push_blocking(encoder_count);
-	    }
+	     	//multicore_fifo_push_blocking(encoder_count);
+	    //}
 	    //pos_edges=0;neg_edges=0;
             if (encoder_count >= (StartPos+ Slip) && encoder_count < (StartPos+ Slip+ PulseWidth)) {
+	        
                 gpio_put(TRIGGER_ENABLE_PIN, 1); // Enable trigger
+                gpio_put(OUT_2, 1); // Enable trigger
+                gpio_put(OUT_3,1); // Enable trigger
 		//printf("*********** triggered *************\n");
             } 
 	    else {
                 gpio_put(TRIGGER_ENABLE_PIN, 0); // Disable trigger
+		gpio_put(OUT_2, 0); 
+                gpio_put(OUT_3,0);
             }
 	    
         } 
         currStateOfPin = nextStateOfPin;
         proxy_currState = proxy_nextState;
 	
-        if ( (rise ==1 && fall ==1 && high==1 && low==0 ) || encoder_count == RunLength) { //reset  
+         if ( (rise ==1 && fall ==1 && high==1 && low==0 ) || encoder_count == RunLength) {
+		 //if (encoder_count == RunLength) { //reset  
         //if ( encoder_count == RunLength) { //reset  
            // printf("reseted with rise and fall count %d, %d %d\n", rise,fall, encoder_count);
-            gpio_put(PROXY_WRITE_PIN,1);
 	    encoder_count = 0 ; rise =0; fall=0; high=0; low=0;
-	    gpio_put(PROXY_WRITE_PIN,0) ;
+	    
 	    //pos_edges=0;neg_edges=0;
 	    //gpio_put(TRIGGER_ENABLE_PIN, 1);
              // Disable trigger
         }
-	//gpio_put(PROXY_WRITE_PIN,0);
+		
+	
+	//gpio_put(OUT_2,0);
 
 	//(encoder_count == RunLength) { encoder_count =0;}
 	//else { gpio_put(TRIGGER_ENABLE_PIN, 0); }
+	//static int64_t time_diff ;
+	//float process_time_us = process_time/1000;
+	//printf("start %ld end %ld Time difference in a cycle %.3f %lu\n",start_time, end_time,process_time_us, process_time); //us
+	
+		 
 	}
 }
 
@@ -164,9 +194,14 @@ int main(){
 	//	reads pos and neg edge count
 		if (multicore_fifo_rvalid()){
 			//int p = multicore_fifo_pop_blocking();
-			//int n = multicore_fifo_pop_blocking();
-			int c = multicore_fifo_pop_blocking();
-			printf("Value at encoder count - %d\n",c);
+			//int ch = multicore_fifo_pop_blocking();
+			//int c = multicore_fifo_pop_blocking();
+			uint32_t time_value_s = multicore_fifo_pop_blocking();
+			uint32_t time_value_e = multicore_fifo_pop_blocking();
+			int64_t process_time = (time_value_e - time_value_s);// absolute_time_diff_us(start_time, end_time); //end_time - start_time;
+			//printf("Value at encoder count - %d \n", c);
+			printf("Value at time diff- %lu %lu %lu\n", time_value_s, time_value_e,process_time);
+			//printf("Value at choice  %d\n",ch );
 		}	
 		
 	} 

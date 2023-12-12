@@ -16,6 +16,8 @@ if (TARGET tinyusb_device)
 	# Add pico_multicore which is required for multicore functionality
 	target_link_libraries(Signal_read_FIFO
 	        pico_stdlib
+	        pico_time
+		hardware_timer
 	        pico_multicore
 		pico_time)
 	
