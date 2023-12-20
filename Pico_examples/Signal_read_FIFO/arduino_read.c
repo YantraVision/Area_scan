@@ -175,7 +175,7 @@ void core1_entry() {
         		currStateOfPin = nextStateOfPin;
         		proxy_currState = proxy_nextState;
 	
-         		if ( (rise ==1 && fall ==1 && high==1 && low==0 ) || encoder_count == RunLength) {
+         		if ( (rise ==1 && fall ==1 && high==1 ) || encoder_count == RunLength) {
 		 	//if (encoder_count == RunLength) { //reset  
         		//if ( encoder_count == RunLength) { //reset  
            		// printf("reseted with rise and fall count %d, %d %d\n", rise,fall, encoder_count);

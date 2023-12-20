@@ -7,10 +7,10 @@ set(CMAKE_CXX_STANDARD 17)
 pico_sdk_init()
 if (TARGET tinyusb_device)
 	add_executable(Signal_read_FIFO
-		arduino_read.c
+		BitwiseCondition.c
 		)
 	#add_executable(Signal_read_FIFO
-	#	pin_check.c
+	#	arduino_read.c
 	#	)
 
 	# Add pico_multicore which is required for multicore functionality
