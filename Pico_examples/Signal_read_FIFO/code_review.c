@@ -48,13 +48,14 @@ void set_up() {
 
 void core1_entry() {
 	//core 1
-	uint32_t g=0,count=0,p=0;
+	uint32_t g=0,count=0,p=0,encoder_in = 0,proxy_in = 0;
 	int array_a[Sample_count],array_p[proxy_samples];
     	uint8_t currStateOfPin = 0;
 	uint8_t nextStateOfPin = 0;
 	uint8_t proxy_currState = 0;
 	uint8_t proxy_nextState = 0;
-	bool E_rise =0, E_fall=0,E_high=0, E_low=0,rise =0, fall=0,high=0, low=0;
+	bool E_rise =0, E_fall=0,E_high=0, E_low=0,P_rise =0, P_fall=0,P_high=0, P_low=0;
+	bool init =0;
 	uint8_t curVal=0;
 	
 	while(1) {
@@ -66,17 +67,42 @@ void core1_entry() {
 			g = gpio_get(ENCODER_PIN);
 			p = gpio_get(PROXY_READ_PIN);
 	
-			for(int k=0;k<proxy_samples;k++){
+			/*for(int k=0;k<proxy_samples;k++){
 				array_p[proxy_samples-k] = array_p[proxy_samples-(k+1)];
 		        }
 	        	array_p[0] = p;
-	        	bool proxy_detect = 1;
+			bool proxy_detect = 1;
 		        for(int i=0; i<proxy_samples; i++) {
  				proxy_detect &= array_p[i];
 		        }
 			proxy_nextState = proxy_detect;
+			*/
+			if(!init){
+				proxy_currState = p;
+				currStateOfPin = g;
+				init =1;
+			}
+			proxy_in = proxy_in << 1;
+			proxy_in |= p;
+			if(proxy_currState == 0){
+				if((proxy_in & 31) == 31){
+					proxy_nextState =1;
+				}
+				else {
+					proxy_nextState = 0;
+				}
+			}
+			else {	//proxy_currState == 1
+				if((proxy_in & 31) > 0) {	//debounce if 1 allowed 0's  >= 15
+					proxy_nextState = 1;
+				}
+				else {
+					proxy_nextState = 0;
+				}
+			}
+       	
        
-			for(int i=1; i<Sample_count; i++) {
+			/*for(int i=1; i<Sample_count; i++) {
 	 			array_a[Sample_count-i] = array_a[Sample_count-(i+1)];
 			}
 			array_a[0] = g;
@@ -99,17 +125,50 @@ void core1_entry() {
 				detect_and &= array_a[j];
 			}
 			nextStateOfPin = detect_and;
-	
+			*/
+
+			encoder_in = encoder_in << 1;
+			encoder_in |= g;
+			if(currStateOfPin == 0){
+				if((encoder_in & 1023) == 1023){
+					nextStateOfPin =1;
+				}
+				else {
+					nextStateOfPin = 0;
+				}
+			}
+			else {	//proxy_currState == 1
+				if((encoder_in & 1023) > 0) {	//debounce if 1 allowed 0's  >= 511
+					nextStateOfPin = 1;
+				}
+				else {
+					nextStateOfPin = 0;
+				}
+			}
+
 			int choice = (	proxy_currState << 1) | proxy_nextState ;
 			switch (choice) {
 				case 0:
-					low = 1; break;
+					P_low = 1; 
+					/*P_rise =0;
+					P_fall = 0;
+					P_high = 0;*/
+					break;
 				case 1:
-					rise = 1; break;
+					P_rise = 1;
+				       	/*P_fall = 0;
+					P_low = 0;*/
+					break;
 				case 2:
-					fall = 1 ;break;
+					P_fall = 1 ;
+					/*P_rise = 0;
+					P_high = 0;*/
+					break;
 				case 3:
-					high = 1; break;
+					P_high = 1;
+				       	/*P_fall = 0;
+					P_low = 0;*/
+					break;
 			}
 			//rising edge
  	
@@ -144,8 +203,8 @@ void core1_entry() {
         		currStateOfPin = nextStateOfPin;
         		proxy_currState = proxy_nextState;
 	
-         		if ( (rise ==1 && fall ==1 && high==1 && low==0 ) || encoder_count == RunLength) {
-	    			encoder_count = 0 ; rise =0; fall=0; high=0; low=0;
+         		if ( (P_rise ==1 && P_fall ==1 && P_high==1 ) || encoder_count == RunLength) {
+	    			encoder_count = 0 ; P_rise =0; P_fall=0; P_high=0; P_low=0;
         		}
 		
 		#ifdef __PRINTS__

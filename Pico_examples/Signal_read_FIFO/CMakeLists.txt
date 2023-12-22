@@ -4,6 +4,10 @@ include(pico_sdk_import.cmake)
 project(test_project C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
+
+#added for DEbug
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
+
 pico_sdk_init()
 if (TARGET tinyusb_device)
 	add_executable(Signal_read_FIFO
@@ -16,10 +20,9 @@ if (TARGET tinyusb_device)
 	# Add pico_multicore which is required for multicore functionality
 	target_link_libraries(Signal_read_FIFO
 	        pico_stdlib
-	        pico_time
 		hardware_timer
 	        pico_multicore
-		pico_time)
+		)
 	
 	# create map/bin/hex file etc.
 	pico_add_extra_outputs(Signal_read_FIFO)
