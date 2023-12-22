@@ -12,7 +12,11 @@ pico_sdk_init()
 if (TARGET tinyusb_device)
 	add_executable(Signal_read_FIFO
 		BitwiseCondition.c
-		)
+		)	
+		#	Camera_trigger.c
+		#)
+	#timeCheck.c
+	#	)
 	#add_executable(Signal_read_FIFO
 	#	arduino_read.c
 	#	)

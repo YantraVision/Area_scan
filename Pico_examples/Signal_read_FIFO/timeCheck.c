@@ -16,15 +16,22 @@ int RunLength =500;
 int PulseWidth = 5;
 int Slip = 0;
 int StartPos = 250;
-absolute_time_t start,end,start_time, end_time;
+uint64_t start,end,start_time, end_time;
 static int64_t process_time;
-uint64_t start_cycle, end_cycle;
+/*uint64_t start_cycle, end_cycle;
 
 clock_t clock()
 {
     return (clock_t) time_us_64() ;
 }
+*/
 
+static uint64_t get_time(void) {
+    // Reading low latches the high value
+    uint32_t lo = timer_hw->timelr;
+    uint32_t hi = timer_hw->timehr;
+    return ((uint64_t) hi << 32u) | lo;
+}
 void set_up() {
 	stdio_init_all();
 
@@ -60,7 +67,8 @@ void core1_entry() {
 	while(1) {
         //gpio_put(TRIGGER_ENABLE_PIN, toggle_pin); // Disable trigger
 	//printf("%d\n",toggle_pin);
-	clock_t start_tick = clock();
+	//clock_t start_tick = clock();
+	start_time = get_time();
 		g = gpio_get(ENCODER_PIN);
 		//multicore_fifo_push_blocking(g);
 		encoder_in = encoder_in << 1;
@@ -99,10 +107,11 @@ void core1_entry() {
 		}
 		//toggle_pin = ~toggle_pin;
 		
-	clock_t end_tick = clock();
+	//clock_t end_tick = clock();
+	end_time = get_time();
 	if(multicore_fifo_wready()) {
-		multicore_fifo_push_blocking(start_tick);
-		multicore_fifo_push_blocking(end_tick);
+		multicore_fifo_push_blocking(start_time);
+		multicore_fifo_push_blocking(end_time);
 	}
 	
 	}

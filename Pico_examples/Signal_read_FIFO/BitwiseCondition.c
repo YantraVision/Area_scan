@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "pico/multicore.h"
+//#include "hardware/timer.h"
 #include <time.h>
 
 #define ENCODER_PIN 21
@@ -13,17 +14,10 @@ int Sample_count=10;
 int proxy_samples = 5;
 int encoder_count = 0;
 int RunLength =500;
-int PulseWidth = 5;
+int PulseWidth = 50;
 int Slip = 0;
-int StartPos = 250;
-absolute_time_t start,end,start_time, end_time;
-static int64_t process_time;
-uint64_t start_cycle, end_cycle;
+int StartPos = 150;
 
-clock_t clock()
-{
-    return (clock_t) time_us_64() ;
-}
 
 void set_up() {
 	stdio_init_all();
@@ -54,82 +48,45 @@ void core1_entry() {
 	//core 1
 	uint32_t encoder_in = 0;
 	uint32_t encoder_count = 0, level_reader = 0;
-	bool g=0, E_high =0, E_low =0, E_rise =0, E_fall =0;
-	uint32_t toggle_pin =0;
-
+	bool g=0, E_rise =0, E_fall =0;
+	uint64_t start_t, end_t;
+       
 	while(1) {
-        gpio_put(TRIGGER_ENABLE_PIN, toggle_pin); // Disable trigger
-	//printf("%d\n",toggle_pin);
-	//clock_t start_tick = clock();
 		g = gpio_get(ENCODER_PIN);
-		//multicore_fifo_push_blocking(g);
 		encoder_in = encoder_in << 1;
 		encoder_in |= g;
 
 		switch(encoder_in) {
-			case 0 :		//0 ... 0
-				E_low = 1;
-				E_high = 0;
-				E_rise = 0;
-				E_fall = 0;
-				//level_reader += 1;
-				break;
-			case 65535:	//case 3:	//case 31 :		//0..0 1..1 - 2^16 - 1
+			case 255:	//case 65535:	//case 31 :		//0..0 1..1 - 2^16 - 1
+				//printf("rise detected\n");
 				E_rise = 1;
-				E_low = 0;
-				E_high = 0;
 				E_fall = 0;
 				encoder_count += 1;
-				//int level_count =0;	
-			/*	if(multicore_fifo_wready()) {
-					//level_count = level_reader;
-					//if(encoder_count == 25 || encoder_count == 50 || encoder_count ==100) {
-					multicore_fifo_push_blocking(encoder_count);
-					//multicore_fifo_push_blocking(level_count);
-					//}
-				}*/
-				//level_reader = 0;
+					
 				if (encoder_count >= (StartPos+ Slip) && encoder_count < (StartPos+ Slip+ PulseWidth)) {
 		        
-        				        //gpio_put(TRIGGER_ENABLE_PIN, 1);
+        				        gpio_put(TRIGGER_ENABLE_PIN, 1);
 						gpio_put(OUT_2, 1); // Enable trigger
         				        gpio_put(OUT_3,1); // Enable trigger
+						
         	    		} 
 		    		else {
-		    		    //gpio_put(TRIGGER_ENABLE_PIN, 0);
+		    		    gpio_put(TRIGGER_ENABLE_PIN, 0);
 				    gpio_put(OUT_2, 0); 
         	    		    gpio_put(OUT_3,0);
         	   		}
 				break;
-			case 4294967295:		//case 7:	//case 1023 :	//1 ... 1 - 2^32 - 1
-				E_high = 1;
-				E_rise = 0;
-				E_low = 0;
-				E_fall = 0;
-				//level_reader += 1;
-				break;
-			case 4294901760:	//case 24:	//case 992:	//1..1 0..0 - 2^31+..+2^16
+			case 65280 :	//case 4294901760:	//case 992:	//1..1 0..0 - 2^31+..+2^16
 				E_fall = 1;
 				E_rise = 0;
-				E_low = 0;
-				E_high = 0;
 				break;
 		}
-
-		
 
 		//reset condition Encoder revolution - 500
 		if(encoder_count == RunLength) {
 			encoder_count = 0; 
-			E_high =0, E_low =0, E_rise =0, E_fall =0;//, level_reader = 0;
+			 E_rise =0, E_fall =0;//, level_reader = 0;
 		}
-		toggle_pin = ~toggle_pin;
-		
-	/*clock_t end_tick = clock();
-	if(multicore_fifo_wready()) {
-		multicore_fifo_push_blocking(start_tick);
-		multicore_fifo_push_blocking(end_tick);
-	}*/
 	
 	}
 }
@@ -143,13 +100,14 @@ int main() {
     	multicore_launch_core1(core1_entry);	//launch core 1
 	while(1) {
 		if(multicore_fifo_rvalid()) {
-			int64_t data_in;
+			uint64_t data_in,st,en;
 			clock_t start, end ;
 			start = multicore_fifo_pop_blocking();
 			end = multicore_fifo_pop_blocking();
-			double time_diff = end - start;
+			uint64_t time_diff = en - st;
 			uint64_t cycles_count = time_diff *133;
-			printf("%lu %lu %f %llu \n", start, end, time_diff, cycles_count);
+			//printf("%lu %lu \n",st, en);
+			printf("%lu %lu %f %llu \n", st, en, time_diff, cycles_count);
 		}
 	}
 }
