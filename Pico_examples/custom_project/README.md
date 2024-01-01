@@ -57,8 +57,6 @@ builds the design
 ```
 make -j4 
 ```
-```
-
 # RUN PROJECT
 
 ## Hardware booting
