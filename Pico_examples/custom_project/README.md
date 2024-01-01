@@ -57,6 +57,11 @@ builds the design
 ```
 make -j4 
 ```
+```
+
+# RUN PROJECT
+
+## Hardware booting
 Connect PICO module to PC and **do BOOTSEL bootmode**
 Get connected PICO Port with **dmesg** command
 Mount PICO
@@ -67,6 +72,12 @@ Copy .uf2 file to PICO , it completes booting, unmount and runs the uploaded cod
 ```
 sudo cp hello_multicore.uf2 /mnt/pico
 ```
+#Software booting
+Using `openocd` to run and debug the project source file. It configures rpi and runs the elf file.
+```
+openocd -f interface/raspberrypi-swd.cfg -f target/rp2040.cfg -c "program ./hello_multicore.elf verify reset exit"
+```
+
 
 
 
