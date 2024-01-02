@@ -2,6 +2,7 @@
 Implemented python scripts to write into and read data from shared memory.
 
 ## Directory Structure
+```
 SharedMemory_example
 |___data_write.py
 |___data_read.py
@@ -12,6 +13,7 @@ SharedMemory_example
 	|___image_render.html
 	|___index.html
 |____*.jpeg (for local testing)
+```
 
 ## Modules used
 	* flask - Flask, render_template (webpage rendering)
