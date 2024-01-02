@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Rendering Dynamic Images Using Flask</title>
+    <style>
+    img {
+    border: 5px solid #555;
+    }
+</style>
+</head>
+<body>
+{% if img %}
+<h1>Rendered Image</h1>
+<p>Images from shared memory buffer.</p>
+<img src="{{img}}" alt="Image Not Found" align="middle">
+{% else %}
+<h1>Image will be render here...</h1>
+{% endif %}
+</body>
+</html>
