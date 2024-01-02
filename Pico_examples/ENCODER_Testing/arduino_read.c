@@ -20,7 +20,6 @@ int PulseWidth = 5;
 int Slip = 0;
 int StartPos = 250;
 uint64_t start_time,end_time, start_array[5],end_array[5];
-bool thread_ready=0;
 void set_up() {
 	stdio_init_all();
 
@@ -62,10 +61,6 @@ void core1_entry() {
 
 	while(1) {
 		
-		#ifdef __PRINTS__
-		//printf("thread status core 1 - %d\n",thread_ready);
-		if(thread_ready == 0) {
-		#endif
 			g = gpio_get(ENCODER_PIN);
 			p = gpio_get(PROXY_READ_PIN);
 			//multicore_fifo_push_blocking(g);
@@ -96,7 +91,6 @@ void core1_entry() {
 				start_array[count] = start_time;
 				multicore_fifo_push_blocking(start_array[count]);
 				multicore_fifo_push_blocking(end_array[count]);
-				thread_ready = 1;
 				count = 0;
 				//printf("%d\n",thread_ready);
 				//printf("%d\n",start_time);
@@ -194,13 +188,6 @@ void core1_entry() {
 			//static int64_t time_diff ;
 			//float process_time_us = process_time/1000;
 			//printf("start %ld end %ld Time difference in a cycle %.3f %lu\n",start_time, end_time,process_time_us, process_time); //us
-		#ifdef __PRINTS__
-			}
-		else {
-			continue;
-		}
-
-		#endif
 	}
 }
 
@@ -214,9 +201,6 @@ int main(){
 	//uint8_t curVal =0;//int count=0;
 	while(1) {
 	//	reads pos and neg edge count
-		#ifdef __PRINTS__
-		//printf("thread status core 0 - %d\n",thread_ready);
-		if(thread_ready == 1) {
 			if (multicore_fifo_rvalid()){
 				//int p = multicore_fifo_pop_blocking();
 				//int ch = multicore_fifo_pop_blocking();
@@ -230,13 +214,6 @@ int main(){
 				printf("Value at time diff- %lu %lu %lu\n", time_value_s, time_value_e,(time_value_e - time_value_s));
 				//printf("Value at choice  %d\n",ch );
 		
-				thread_ready = 0;
 			}
-		}
-		else {
-			continue;
-		}
-		#endif	
-		
 	} 
 }
