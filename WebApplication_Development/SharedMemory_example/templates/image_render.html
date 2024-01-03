@@ -2,20 +2,78 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Rendering Dynamic Images Using Flask</title>
+    <!---title>Rendering Dynamic Images Using Flask</title -->
+    <title>SAMPLE GUI</title>
     <style>
     img {
     border: 5px solid #555;
     }
-</style>
+    </style>
 </head>
 <body>
-{% if img %}
-<h1>Rendered Image</h1>
-<p>Images from shared memory buffer.</p>
-<img src="{{img}}" alt="Image Not Found" align="middle">
-{% else %}
-<h1>Image will be render here...</h1>
-{% endif %}
+<style>
+.header-style > * {
+	border-width: 3px;
+	border-style: solid;
+	border-color: white;
+	background: coral;
+	padding: 20px;
+	font-size: 30px;
+	text-align:center;
+}
+.wrap-table > * {
+	display: table-cell;
+	vertical-align: middle;
+}
+.wrap-table > * {
+  width: 33.3%;
+  padding: 10px; margin: 0;
+  border: 1px white;
+}
+.image-style > * {
+	text-align: center;
+	padding: 10px;
+	margin: 1;
+	border: 2px grey;
+}
+</style>
+<div class="header-style">
+		<h1 style border->AREA SCAN GUI</h1>
+</div>
+<div class="wrap-table">
+		<p> Runlength <input type="number" id="number" value="500" maxlength="500"</p>
+		<p>Pulse Width <input type="number" id="number" value="50" min="10" max="100" maxlength="500"</p>
+		<p>Exposure <input type="number" id="number" value="50" min="10" max="300" maxlength="500"</p>
+</div>
+<div style="text-align: center;	padding: 25px;border: 2px black;">
+	{% if img %}
+	<h1>Rendered Image</h1>
+	<p>Images from shared memory buffer.</p>
+	<script type="application/javascript">
+		function autoRefresh() {
+	            window.location = window.location.href;
+        	}
+		setInterval('autoRefresh()', 2000);
+	</script>
+	<!-- img src="{{img}}" alt="Image Not Found" align="middle" -->
+	<img id="picture" src="data:image/jpeg;base64,{{ img }}">
+	{% else %}
+	<h1>Image will be render here...</h1>
+	{% endif %}
+</div>
+
+<div>
+	<p>Illumination
+	<input type="range" id="number" value="50" min="25" max="100"</p>
+	
+	<p>Slip
+	<input type="range" id="number" value="50" min="25" max="300"</p>
+</div>
+<div>
+	<p>Zoom
+	<input type="range" id="number" value="50" min="25" max="300"</p>
+</div>
+
+
 </body>
 </html>

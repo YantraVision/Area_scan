@@ -10,7 +10,8 @@ import time
 import numpy as np
 from ctypes import *
 from flask import Flask,render_template
-
+import io
+import base64
 app = Flask(__name__)
 img= os.path.join('static','Images')
 # Creating a shared memory buffer named 'test_buf'
@@ -83,12 +84,16 @@ def multiImg_test():
         arr_reshape = inter_data.reshape(183,275,3)
         print(type(arr_reshape), arr_reshape.shape)
         img_data = Image.fromarray(arr_reshape)
-        img_data.save("static/Images/dummy.png")
-        file_path= os.path.join(img,'dummy.png')
+        data = io.BytesIO()
+        img_data.save(data,"JPEG")
+        encoded_img_data = base64.b64encode(data.getvalue())
+        #img_data.save("static/Images/dummy.png")
+        #file_path= os.path.join(img,'dummy.png')
+
         #cv2.imshow("output image", arr_reshape)
         #cv2.waitKey(2000)
-        print(file_path)
-        return render_template('image_render.html',img=file_path)
+#        print(file_path)
+        return render_template('image_render.html',img=encoded_img_data.decode('utf-8'))
     
 
 if __name__ == "__main__":
