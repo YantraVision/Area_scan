@@ -1,6 +1,20 @@
 # Image Rendering example
 Implemented python scripts to write into and read data from shared memory.
 
+## Directory Structure
+```
+SharedMemory_example
+|___data_write.py
+|___data_read.py
+|___static
+	|___Images
+		|___ dummy.png (image read from shared memory)
+|___templates
+	|___image_render.html
+	|___index.html
+|____*.jpeg (for local testing)
+```
+
 ## Modules used
 	* flask - Flask, render_template (webpage rendering)
 	* multiprocessing - shared_memory (shared memory accessing)
