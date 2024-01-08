@@ -1,0 +1,4 @@
+.*.sw*
+*.cmake
+*.o
+build
